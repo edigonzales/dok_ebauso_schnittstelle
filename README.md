@@ -2,13 +2,16 @@
 
 Es handelt sich um eine ergänzende Dokumentation zum [roten Faden](https://github.com/sogis/dok/blob/dok/dok_rote_faeden/Documents/DSBJD/ebauso/ebauso.md). Die Rote-Faden-Dokumentationen sind in einem nicht public Github-Repository.
 
+Dokumente: 
+ - Grobkonzept [GIS-Integration vom 29. April 2024](ebauso_gis_integration_V_0_1.docx)
+
 ## Struktur Rahmenmodell (Datenmodell)
 
 Es wurde beschlossen, dass für die Schnittstelle zum Bezug von GIS-Informationen ein separates Datenmodell erstellt wird. In diesem Datenmodell resp. in den entsprechenden Tabellen in der Datenbank werden alle von eBauSO benötigten Daten gespeichert und sie werden als Dataservice-Layer publiziert. Damit soll vermieden werden, dass Änderungen im Originalmodell Auswirkungen auf die GIS-Schnitstelle haben und sich eBauSO ständig anpassen muss. Änderungen in den Originalmodellen werden durch den Datenherrn ausgelöst. 
 
 Die Daten werden täglich aus den Originaltabellen aktualisiert. Schlägt eine Aktualisierung fehl, weil z.B. das Originalmodell geändert hat und es nicht mehr direkt kompatibel ist, funktioniert die Schnittstelle immer noch und das AGI kümmert sich um die Anpassung des Datenumbaus/Datentransfers. Dies kann in der Regel innerhalb von wenigen Tagen gemacht werden. Die GIS-Schnittstelle funktioniert immer noch, nur nicht mehr mehr mit top-aktuellen Daten.
 
-Das neue Datenmodell ist ein Rahmenmodell, d.h. alle sogenannten Fachthemen (z.B. Gewässerschutz, Fruchtfolgeflächen, ...) müssen in eine gemeinsame Struktur gepackt werden können. Die Aussage des Themas muss in unserem Fall mittels zwei Attributen (`Artcode`, `Beschreibung`) erreicht werden können. Dies entspricht der Struktur des ÖREB-Katasters, aus dem auch einige Themen stammen. Es gibt darüber hinaus ein Geometrieattribut und das Attribut `Thema`, welches beschreibt, um welches Fachthema es sich beim Objekt handelt (z.B. `ch.Grundwasserschutzzonen`, `ch.SO.Fruchtfolgeflaechen`). Die Codierung ist an den ÖREB-Kataster angelehnt.
+Das neue Datenmodell ist ein Rahmenmodell, d.h. alle sogenannten Fachthemen (z.B. Gewässerschutz, Fruchtfolgeflächen, ...) müssen in eine gemeinsame Struktur gepackt werden können. **Die Aussage des Themas muss in unserem Fall mittels zwei Attributen (`Artcode`, `Beschreibung`) erreicht werden können.** Dies entspricht der Struktur des ÖREB-Katasters, aus dem auch einige Themen stammen. Es gibt darüber hinaus ein Geometrieattribut und das Attribut `Thema`, welches beschreibt, um welches Fachthema es sich beim Objekt handelt (z.B. `ch.Grundwasserschutzzonen`, `ch.SO.Fruchtfolgeflaechen`). Die Codierung ist an den ÖREB-Kataster angelehnt.
 
 Zusätzlich gibt es zwei Klassen/Tabellen, die für Lokalisation des Bauvorhabens verwendet werden können: Gebäudeeingänge und Grundstücke.
 
@@ -38,7 +41,7 @@ https://geo-i.so.ch/api/data/v1/ch.so.dsbjd.ebauso_lokalisation_grundstueck.data
 
 Layername: `ch.so.dsbjd.ebauso_lokalisation_gebaeudeeingang.data`
 
-Es werden die Gebäudeingänge zurückgeliefert. Der Request muss in der Regel gebuffert erfolgen, damit ein Eingang gefunden wird.
+Es werden die Gebäudeingänge zurückgeliefert. Der Request muss in der Regel gebuffert erfolgen, damit ein Eingang gefunden wird. Die Buffergrösse muss das Projekt resp. die Fachstellen definieren und kann nicht durch das AGI gemacht werden.
 
 Beispiel:
 
@@ -48,7 +51,7 @@ https://geo-i.so.ch/api/data/v1/ch.so.dsbjd.ebauso_lokalisation_gebaeudeeingang.
 
 Es gibt pro Geometrietyp einen Dataservice-Layer (Flächen, Linien und Punkt).
 
-Der Artcode beinhaltet eine "Code ähnliche" Information (z.B. `N490_Golfzone`). Die Beschreibung entspricht einer Prosa-Beschreibung der Information (z.B. `Golfplatz Wylihof`). Es können also maximal zwei Sachinformationen vermittelt werden. Das Attribut `Thema` entspricht dem Ursprungsfachthema (aus welchem Thema stammen die Daten?). Die Codierung ist an Themen-Codierung im ÖREB-Kataster angelehnt. 
+Der Artcode beinhaltet eine "Code ähnliche" Information (z.B. `N490_Golfzone`). Die Beschreibung entspricht einer Prosa-Beschreibung der Information (z.B. `Golfplatz Wylihof`). **Es können also maximal zwei Sachinformationen vermittelt werden.** Das Attribut `Thema` entspricht dem Ursprungsfachthema (aus welchem Thema stammen die Daten?). Die Codierung ist an Themen-Codierung im ÖREB-Kataster angelehnt. 
 
 Es ist Sache der Anwendung (eBauSO) zu entscheiden wann und wie der Request zum Dataservice gemacht wird. So kann es unter Umständen sinnvoll sein, mit einem Request möglichst viele Themen anzufordern. Für gewisse Fragestellungen (z.B. "Liegt das Baugesuch innnerhalb einer Fruchtfolgefläche?") ist es eventuell sinnvoller einen Request zu machen, der nur das Thema "Fruchfolgefläche" anfordert. Wenn keine Objekte zurückgeliefert werden, weiss man, dass das Baugesuch nicht innerhalb einer Fruchtfolgefläche liegt. 
 
@@ -93,6 +96,6 @@ Es sind folgende Themen vorhanden:
 
 Im Thema `ch.SO.Bodenbedeckung` ist nur Wald und Gewässer vorhanden. Für die Juraschutzzone werden nur Objekte `objekttyp = 'Juraschutzzone'` verwendet.
 
-Für die Daten, die aus dem ÖREB-Kataster verwendet werden, weist das Attribut `Rechtsstatus` einen Wert aus (`inKraft`, `AenderungOhneVorwirkung`, `AenderungMitVorwirkung`). Darauf ist bei der Weiterverarbeitunt / beim Entscheidungsprozess in eBauSO zwingend Rücksicht zu nehmen.
+Für die Daten, die aus dem ÖREB-Kataster verwendet werden, weist das Attribut `Rechtsstatus` einen Wert aus (`inKraft`, `AenderungOhneVorwirkung`, `AenderungMitVorwirkung`). Darauf ist bei der Weiterverarbeitung / beim Entscheidungsprozess in eBauSO zwingend Rücksicht zu nehmen. Falls gewünscht, kann auf das Attribut verzichtet werden. In diesem Fall filtern wir alle Objekte ungleich `inKraft` bereits in der Datenbank.
 
 
